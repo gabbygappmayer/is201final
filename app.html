@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎬 Show Match Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(120deg, #c0f8ff, #f6f1f1);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      margin-top: 2rem;
+      font-size: 2.5rem;
+      color: #3f0bba;
+    }
+
+    p {
+      font-size: 1.1rem;
+    }
+
+    .game-board {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 15px;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    .card {
+      perspective: 1000px;
+      height: 100px;
+      cursor: pointer;
+    }
+
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      position: relative;
+    }
+
+    .flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front,
+    .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      backface-visibility: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-front {
+      background-color: #f070d0;
+    }
+
+    .card-back {
+      background-color: #d1c0ff;
+      transform: rotateY(180deg);
+    }
+
+    .matched .card-inner {
+      pointer-events: none;
+      transform: rotateY(180deg);
+    }
+
+    .matched .card-back {
+      background-color: #ba2d0b;
+      color: white;
+      box-shadow: 0 0 15px #ba2d0b;
+    }
+
+    .footer {
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎬 Show Match</h1>
+  <p>Flip cards to match your favorite shows!</p>
+
+  <div class="game-board" id="gameBoard"></div>
+
+  <div class="footer">
+    Built with 💖 by Gabrielle Gappmayer
+  </div>
+
+  <script>
+    const shows = [
+      "The Chosen", "The Office", "Studio C", "Brooklyn 99",
+      "The Chosen", "The Office", "Studio C", "Brooklyn 99"
+    ];
+
+    let flippedCards = [];
+    let matchedCards = [];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function createBoard() {
+      const board = document.getElementById("gameBoard");
+      shuffle(shows);
+
+      shows.forEach((show, index) => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.dataset.show = show;
+
+        const cardInner = document.createElement("div");
+        cardInner.classList.add("card-inner");
+
+        const front = document.createElement("div");
+        front.classList.add("card-front");
+        front.innerText = "🎬";
+
+        const back = document.createElement("div");
+        back.classList.add("card-back");
+        back.innerText = show;
+
+        cardInner.appendChild(front);
+        cardInner.appendChild(back);
+        card.appendChild(cardInner);
+
+        card.addEventListener("click", () => handleCardClick(card));
+        board.appendChild(card);
+      });
+    }
+
+    function handleCardClick(card) {
+      if (
+        card.classList.contains("flipped") ||
+        card.classList.contains("matched") ||
+        flippedCards.length === 2
+      ) return;
+
+      card.classList.add("flipped");
+      flippedCards.push(card);
+
+      if (flippedCards.length === 2) {
+        const [card1, card2] = flippedCards;
+        if (card1.dataset.show === card2.dataset.show) {
+          card1.classList.add("matched");
+          card2.classList.add("matched");
+          matchedCards.push(card1.dataset.show);
+        } else {
+          setTimeout(() => {
+            card1.classList.remove("flipped");
+            card2.classList.remove("flipped");
+          }, 1000);
+        }
+        flippedCards = [];
+      }
+
+      if (matchedCards.length === shows.length / 2) {
+        setTimeout(() => {
+          alert("🎉 You matched all the shows!");
+        }, 500);
+      }
+    }
+
+    createBoard();
+  </script>
+
+</body>
+</html>
+
